@@ -4,7 +4,7 @@ import { Burger } from './burger.entity';
 import { Repository } from 'typeorm';
 import { AddBurgerDto } from './dto/add-burger.dto';
 
-@Controller('burgers')
+@Controller('burger')
 export class BurgerController {
   constructor(
     @InjectRepository(Burger)
