@@ -8,6 +8,9 @@ export class Burger {
   @Column()
   name: string;
 
+  @Column()
+  brand: string;
+
   @Column({ nullable: true })
-  imageUrl: string;
+  description: string;
 }
