@@ -4,7 +4,6 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Burger } from './burger/burger.entity';
 import { BurgerModule } from './burger/burger.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -19,7 +18,6 @@ import { AuthModule } from './auth/auth.module';
       synchronize: true,
     }),
     BurgerModule,
-    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
