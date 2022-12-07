@@ -4,6 +4,8 @@ import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Burger } from './burger/burger.entity';
 import { BurgerModule } from './burger/burger.module';
+import { AuthModule } from './auth/auth.module';
+import { User } from './auth/user.entity';
 
 @Module({
   imports: [
@@ -14,10 +16,11 @@ import { BurgerModule } from './burger/burger.module';
       username: 'root',
       password: 'tyangE1@',
       database: 'pian_test',
-      entities: [Burger],
+      entities: [Burger, User],
       synchronize: true,
     }),
     BurgerModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
