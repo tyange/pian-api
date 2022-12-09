@@ -14,6 +14,8 @@ import { DeleteResult, Repository } from 'typeorm';
 import { AddBurgerDto } from './dto/add-burger.dto';
 import { EditBurgerDto } from './dto/edit-burger.dto';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from '../auth/get-user.decorator';
+import { User } from '../auth/user.entity';
 
 @Controller('burger')
 export class BurgerController {
@@ -38,11 +40,15 @@ export class BurgerController {
 
   @Post()
   @UseGuards(AuthGuard())
-  addBurger(@Body() addBurgerDto: AddBurgerDto): Promise<Burger> {
+  addBurger(
+    @Body() addBurgerDto: AddBurgerDto,
+    @GetUser() user: User,
+  ): Promise<Burger> {
     const burger = this.burgerRepository.create({
       name: addBurgerDto.name,
       brand: addBurgerDto.brand,
       description: addBurgerDto.description,
+      user: user,
     });
 
     return this.burgerRepository.save(burger);
