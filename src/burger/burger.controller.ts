@@ -6,12 +6,14 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Burger } from './burger.entity';
 import { DeleteResult, Repository } from 'typeorm';
 import { AddBurgerDto } from './dto/add-burger.dto';
 import { EditBurgerDto } from './dto/edit-burger.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('burger')
 export class BurgerController {
@@ -35,6 +37,7 @@ export class BurgerController {
   }
 
   @Post()
+  @UseGuards(AuthGuard())
   addBurger(@Body() addBurgerDto: AddBurgerDto): Promise<Burger> {
     const burger = this.burgerRepository.create({
       name: addBurgerDto.name,
@@ -46,6 +49,7 @@ export class BurgerController {
   }
 
   @Put(':id')
+  @UseGuards(AuthGuard())
   async editBurger(
     @Param('id') editBurgerId: number,
     @Body() editBurgerDto: EditBurgerDto,
@@ -64,6 +68,7 @@ export class BurgerController {
   }
 
   @Delete(':id')
+  @UseGuards(AuthGuard())
   async deleteBurger(
     @Param('id') deleteBurgerId: number,
   ): Promise<DeleteResult> {
