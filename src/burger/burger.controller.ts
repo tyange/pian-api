@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Put,
+  UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,6 +19,7 @@ import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 
 @Controller('burger')
+@UseGuards(AuthGuard())
 export class BurgerController {
   constructor(
     @InjectRepository(Burger)
@@ -26,7 +28,24 @@ export class BurgerController {
 
   @Get()
   getAllBurger() {
+    // TODO: admin 유저의 경우 모든 버거를 볼 수 있도록 처리.
     return this.burgerRepository.find();
+  }
+
+  @Get(':userId')
+  async getAllBurgerWithUserId(
+    @Param('userId') userId: string,
+    @GetUser() user: User,
+  ): Promise<Burger[]> {
+    if (parseInt(userId) !== user.id) {
+      throw new UnauthorizedException();
+    }
+
+    const query = this.burgerRepository.createQueryBuilder('burger');
+
+    query.where('burger.userId = :userId', { userId: user.id });
+
+    return await query.getMany();
   }
 
   @Get(':id')
