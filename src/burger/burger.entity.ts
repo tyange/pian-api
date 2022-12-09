@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { User } from '../auth/user.entity';
 
 @Entity()
 export class Burger {
@@ -13,4 +14,7 @@ export class Burger {
 
   @Column({ nullable: true })
   description: string;
+
+  @ManyToOne(() => User, (user) => user.burger, { eager: false })
+  user: User;
 }

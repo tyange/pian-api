@@ -1,4 +1,11 @@
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
+import { Burger } from '../burger/burger.entity';
 
 @Entity()
 @Unique(['username'])
@@ -11,4 +18,7 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(() => Burger, (burger) => burger.user, { eager: true })
+  burger: Burger[];
 }
