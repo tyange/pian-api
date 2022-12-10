@@ -3,6 +3,7 @@ import {
   Controller,
   Delete,
   Get,
+  NotFoundException,
   Param,
   Post,
   Put,
@@ -11,7 +12,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Burger } from './burger.entity';
-import { DeleteResult, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AddBurgerDto } from './dto/add-burger.dto';
 import { EditBurgerDto } from './dto/edit-burger.dto';
 import { AuthGuard } from '@nestjs/passport';
@@ -19,7 +20,6 @@ import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
 
 @Controller('burger')
-@UseGuards(AuthGuard())
 export class BurgerController {
   constructor(
     @InjectRepository(Burger)
@@ -33,6 +33,7 @@ export class BurgerController {
   }
 
   @Get(':userId')
+  @UseGuards(AuthGuard())
   async getAllBurgerWithUserId(
     @Param('userId') userId: string,
     @GetUser() user: User,
@@ -77,11 +78,13 @@ export class BurgerController {
   @UseGuards(AuthGuard())
   async editBurger(
     @Param('id') editBurgerId: number,
+    @GetUser() user: User,
     @Body() editBurgerDto: EditBurgerDto,
   ): Promise<Burger> {
     const targetBurger = await this.burgerRepository.findOne({
       where: {
         id: editBurgerId,
+        user,
       },
     });
 
@@ -96,7 +99,17 @@ export class BurgerController {
   @UseGuards(AuthGuard())
   async deleteBurger(
     @Param('id') deleteBurgerId: number,
-  ): Promise<DeleteResult> {
-    return this.burgerRepository.delete(deleteBurgerId);
+    @GetUser() user: User,
+  ): Promise<void> {
+    const result = await this.burgerRepository.delete({
+      id: deleteBurgerId,
+      user,
+    });
+
+    if (result.affected === 0) {
+      throw new NotFoundException(
+        `Can't find Burger with id ${deleteBurgerId}`,
+      );
+    }
   }
 }
