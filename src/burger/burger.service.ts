@@ -2,7 +2,6 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Burger } from './burger.entity';
 import { Repository } from 'typeorm';
-import { JwtService } from '@nestjs/jwt';
 import { AddBurgerDto } from './dto/add-burger.dto';
 import { User } from '../auth/user.entity';
 import { EditBurgerDto } from './dto/edit-burger.dto';
@@ -12,7 +11,6 @@ export class BurgerService {
   constructor(
     @InjectRepository(Burger)
     private burgerRepository: Repository<Burger>,
-    private jwtService: JwtService,
   ) {}
 
   async getAllBurger() {
