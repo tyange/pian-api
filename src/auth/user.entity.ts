@@ -19,6 +19,9 @@ export class User {
   @Column()
   password: string;
 
+  @Column()
+  type: 'USER' | 'ADMIN';
+
   @OneToMany(() => Burger, (burger) => burger.user, { eager: true })
   burger: Burger[];
 }

@@ -18,44 +18,29 @@ import { EditBurgerDto } from './dto/edit-burger.dto';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from '../auth/get-user.decorator';
 import { User } from '../auth/user.entity';
+import { BurgerService } from './burger.service';
 
 @Controller('burger')
 export class BurgerController {
   constructor(
     @InjectRepository(Burger)
     private burgerRepository: Repository<Burger>,
+    private burgerService: BurgerService,
   ) {}
 
   @Get()
-  getAllBurger() {
-    // TODO: admin 유저의 경우 모든 버거를 볼 수 있도록 처리.
-    return this.burgerRepository.find();
+  getAllBurger(): Promise<Burger[]> {
+    return this.burgerService.getAllBurger();
   }
 
   @Get(':userId')
-  @UseGuards(AuthGuard())
-  async getAllBurgerWithUserId(
-    @Param('userId') userId: string,
-    @GetUser() user: User,
-  ): Promise<Burger[]> {
-    if (parseInt(userId) !== user.id) {
-      throw new UnauthorizedException();
-    }
-
-    const query = this.burgerRepository.createQueryBuilder('burger');
-
-    query.where('burger.userId = :userId', { userId: user.id });
-
-    return await query.getMany();
+  getAllBurgerWithUserId(@Param('userId') userId: number): Promise<Burger[]> {
+    return this.burgerService.getAllBurgerWithUserId(userId);
   }
 
   @Get(':id')
-  getBurger(@Param('id') burgerId: number) {
-    return this.burgerRepository.findOne({
-      where: {
-        id: burgerId,
-      },
-    });
+  getBurger(@Param('id') burgerId: number): Promise<Burger> {
+    return this.burgerService.getBurger(burgerId);
   }
 
   @Post()
@@ -64,52 +49,25 @@ export class BurgerController {
     @Body() addBurgerDto: AddBurgerDto,
     @GetUser() user: User,
   ): Promise<Burger> {
-    const burger = this.burgerRepository.create({
-      name: addBurgerDto.name,
-      brand: addBurgerDto.brand,
-      description: addBurgerDto.description,
-      user: user,
-    });
-
-    return this.burgerRepository.save(burger);
+    return this.burgerService.addBurger(addBurgerDto, user);
   }
 
   @Put(':id')
   @UseGuards(AuthGuard())
-  async editBurger(
+  editBurger(
     @Param('id') editBurgerId: number,
     @GetUser() user: User,
     @Body() editBurgerDto: EditBurgerDto,
   ): Promise<Burger> {
-    const targetBurger = await this.burgerRepository.findOne({
-      where: {
-        id: editBurgerId,
-        user,
-      },
-    });
-
-    targetBurger.name = editBurgerDto.name;
-    targetBurger.brand = editBurgerDto.brand;
-    targetBurger.description = editBurgerDto.description;
-
-    return this.burgerRepository.save(targetBurger);
+    return this.burgerService.editBurger(editBurgerId, user, editBurgerDto);
   }
 
   @Delete(':id')
   @UseGuards(AuthGuard())
-  async deleteBurger(
+  deleteBurger(
     @Param('id') deleteBurgerId: number,
     @GetUser() user: User,
   ): Promise<void> {
-    const result = await this.burgerRepository.delete({
-      id: deleteBurgerId,
-      user,
-    });
-
-    if (result.affected === 0) {
-      throw new NotFoundException(
-        `Can't find Burger with id ${deleteBurgerId}`,
-      );
-    }
+    return this.burgerService.deleteBurger(deleteBurgerId, user);
   }
 }
